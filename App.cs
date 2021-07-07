@@ -28,6 +28,7 @@ namespace DapperPocoLab
         {
             //## 取得參數
             string connStr = _config.GetConnectionString("DefaultConnection");
+            string nameSpace = _config["Namespace"];
             string outputFolder = _config["OutputFolder"];
             string indent = _config["Indent"];
 
@@ -52,8 +53,10 @@ namespace DapperPocoLab
                         // Console.WriteLine($"{Utils.JsonSerialize(table, false)}");
                         StringBuilder pocoCode = new StringBuilder();
 
+                        pocoCode.AppendLine($"namespace {nameSpace}");
+                        pocoCode.AppendLine("{");
                         pocoCode.AppendLine("using System;");
-                        pocoCode.AppendLine("using Dapper;");
+                        //pocoCode.AppendLine("using Dapper;");
                         pocoCode.AppendLine("using Dapper.Contrib.Extensions;");
                         pocoCode.AppendLine();
 
@@ -69,7 +72,7 @@ namespace DapperPocoLab
                             string dataType = Utils.GetNetDataType(col.DATA_TYPE);
                             bool isKey = col.IS_PK == "YES";
                             bool isIdentity = col.IS_IDENTITY == "YES";
-                            string nullable = col.IS_NULLABLE == "YES" ? "?" : "";
+                            string nullable = (dataType != "string" && col.IS_NULLABLE == "YES") ? "?" : "";
                             string description = col.MS_Description;
 
                             /// summary
@@ -88,10 +91,11 @@ namespace DapperPocoLab
                             if (!isKey && isIdentity)
                                 pocoCode.AppendLine($"{indent}[Computed]");
 
-                            pocoCode.AppendLine($"{indent}public {dataType} {col.COLUMN_NAME}{nullable} {{ get; set; }}");
+                            pocoCode.AppendLine($"{indent}public {dataType}{nullable} {col.COLUMN_NAME} {{ get; set; }}");
                         });
 
                         pocoCode.AppendLine("}");
+                        pocoCode.AppendLine("}"); // end of: Namespace
                         pocoCode.AppendLine();
 
                         //## 一個Table一個檔案
