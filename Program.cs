@@ -15,21 +15,23 @@ namespace DapperPocoLab
                .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
                .Build();
 
-            //取得參數
+            //## 取得參數
             string connStr = config.GetConnectionString("DefaultConnection");
             string outputFolder = config["OutputFolder"];
             string indent = config["Indent"];
 
-            Console.WriteLine($"§ 參數");
-            Console.WriteLine($"連線字串：{connStr}");
-            Console.WriteLine($"輸出目錄：{outputFolder}");
-            Console.WriteLine($"縮排字串：{indent}");
+            //Console.WriteLine($"§ 參數");
+            //Console.WriteLine($"連線字串：{connStr}");
+            //Console.WriteLine($"輸出目錄：{outputFolder}");
+            //Console.WriteLine($"縮排字串：{indent}");
 
 			try
 			{
+				//# 建立輸出目錄
 				DirectoryInfo outDir = new DirectoryInfo(outputFolder);
 				if (!outDir.Exists) outDir.Create();
 
+				//## 開始產生 POCO classes 
 				using (var conn = new SqlConnection(connStr))
 				{
 					var tableList = DBHelper.GetTableList(conn);
@@ -80,7 +82,7 @@ namespace DapperPocoLab
 						pocoCode.AppendLine("}");
 						pocoCode.AppendLine();
 
-						// 一個Table一個檔案
+						//## 一個Table一個檔案
 						File.WriteAllText(Path.Combine(outDir.FullName, $"{table.TABLE_NAME}.cs"), pocoCode.ToString(), encoding: Encoding.UTF8);
 						Console.WriteLine(pocoCode.ToString());
 					});
