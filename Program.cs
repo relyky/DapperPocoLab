@@ -3,20 +3,30 @@ using System.Linq;
 using System.Data.SqlClient;
 using System.Text;
 using System.IO;
+using Microsoft.Extensions.Configuration;
 
 namespace DapperPocoLab
 {
-	public class Program
-	{
-		public static void Main()
-		{
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            IConfiguration config = new ConfigurationBuilder()
+               .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
+               .Build();
+
+            //取得參數
+            string connStr = config.GetConnectionString("DefaultConnection");
+            string outputFolder = config["OutputFolder"];
+            string indent = config["Indent"];
+
+            Console.WriteLine($"§ 參數");
+            Console.WriteLine($"連線字串：{connStr}");
+            Console.WriteLine($"輸出目錄：{outputFolder}");
+            Console.WriteLine($"縮排字串：{indent}");
+
 			try
 			{
-				//Generate All Tables
-				const string indent = "    ";
-				string connStr = "Data Source=RELYNB2;Initial Catalog=MineDB;Integrated Security=True";
-				string outputFolder = "Output";
-
 				DirectoryInfo outDir = new DirectoryInfo(outputFolder);
 				if (!outDir.Exists) outDir.Create();
 
@@ -71,7 +81,7 @@ namespace DapperPocoLab
 						pocoCode.AppendLine();
 
 						// 一個Table一個檔案
-						File.WriteAllText(Path.Combine(outDir.FullName,$"{table.TABLE_NAME}.cs") , pocoCode.ToString(), encoding: Encoding.UTF8);
+						File.WriteAllText(Path.Combine(outDir.FullName, $"{table.TABLE_NAME}.cs"), pocoCode.ToString(), encoding: Encoding.UTF8);
 						Console.WriteLine(pocoCode.ToString());
 					});
 				}
@@ -79,11 +89,11 @@ namespace DapperPocoLab
 				Console.WriteLine();
 				Console.WriteLine("已成功產生 Dapper POCO classes 程式碼，請檢查輸出目錄。");
 			}
-			finally 
+			finally
 			{
 				Console.WriteLine("Press any key to continue.");
 				Console.ReadKey();
 			}
-		}
-	}
+        }
+    }
 }
