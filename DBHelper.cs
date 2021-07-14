@@ -58,6 +58,36 @@ ORDER BY TABLE_NAME, ORDINAL_POSITION ASC ";
             var columnList = conn.Query<ColumnInfo>(sql, new { tableSchema, tableName }).ToList();
             return columnList;
         }
+
+        public static List<ProcedureInfo> GetProcedureInfo(SqlConnection conn) 
+        {
+            string sql1 = @"SELECT SPECIFIC_CATALOG, SPECIFIC_SCHEMA, SPECIFIC_NAME, ROUTINE_TYPE
+  FROM INFORMATION_SCHEMA.ROUTINES
+ WHERE ROUTINE_TYPE = 'PROCEDURE'
+   AND ROUTINE_NAME NOT IN('sp_upgraddiagrams','sp_helpdiagrams','sp_helpdiagramdefinition','sp_creatediagram','sp_renamediagram','sp_alterdiagram','sp_dropdiagram'); ";
+
+            string sql2 = @"SELECT SPECIFIC_CATALOG, SPECIFIC_SCHEMA, SPECIFIC_NAME, ORDINAL_POSITION, PARAMETER_NAME, DATA_TYPE
+ FROM INFORMATION_SCHEMA.PARAMETERS
+ WHERE SPECIFIC_NAME = @SPECIFIC_NAME
+  AND SPECIFIC_SCHEMA = @SPECIFIC_SCHEMA
+  AND SPECIFIC_CATALOG = @SPECIFIC_CATALOG; ";
+
+            List<ProcedureInfo> procedureList = new List<ProcedureInfo>();
+            foreach (var info in conn.Query<ProcedureInfo>(sql1).ToList())
+            {
+                // parameter info
+                var paramList = conn.Query<ParameterInfo>(sql2, new { info.SPECIFIC_CATALOG, info.SPECIFIC_SCHEMA, info.SPECIFIC_NAME }).ToList();
+                info.paramList = paramList;
+                
+                // result info
+
+
+                procedureList.Add(info);
+            }
+
+            return procedureList;
+        }
+
     }
 
     class TableInfo
@@ -80,5 +110,31 @@ ORDER BY TABLE_NAME, ORDINAL_POSITION ASC ";
         public string IS_IDENTITY { get; set; }
         public string IS_PK { get; set; }
         public string MS_Description { get; set; }
+    }
+
+    class ProcedureInfo 
+    {
+        public string SPECIFIC_CATALOG;
+        public string SPECIFIC_SCHEMA;
+        public string SPECIFIC_NAME;
+        public string ROUTINE_TYPE;
+
+        public List<ParameterInfo> paramList;
+        public List<ResultFieldInfo> fieldList;
+    }
+
+    class ParameterInfo
+    {
+        public string PARAMETER_NAME;
+        public int ORDINAL_POSITION;
+        public string SPECIFIC_CATALOG;
+        public string SPECIFIC_SCHEMA;
+        public string PECIFIC_NAME;
+        public string DATA_TYPE;
+    }
+
+    class ResultFieldInfo 
+    { 
+    
     }
 }
