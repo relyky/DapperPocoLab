@@ -194,6 +194,11 @@ namespace DapperPocoLab
 
 
                 //## Procedure Result Class ------------
+                ///public class 計算資產編號Result
+                ///{
+                ///    public string 資產編號 { get; set; }
+                ///}
+
                 pocoCode.AppendLine($"public class {proc.SPECIFIC_NAME}Result ");
                 pocoCode.AppendLine("{");
                 proc.ColumnList.ForEach(col =>
@@ -207,6 +212,11 @@ namespace DapperPocoLab
 
 
                 //## Procedure Parameter Class ------------
+                ///public class 計算資產編號Args
+                ///{
+                ///    public string 品項類別 { get; set; }
+                ///}
+
                 bool f_NonParam = proc.ParamList.Count <= 0; // 無輸入參數
                 if (!f_NonParam)
                 {
@@ -222,31 +232,29 @@ namespace DapperPocoLab
                     pocoCode.AppendLine("}"); // end of: Reslt Column 
                 }
 
-
                 //## Procedure Instance ------------
-
-                ///partial static class DBHelperClassExtensions
+                ///static partial class DBHelperClassExtensions
                 ///{
-                ///	public static List<計算資產編號Result> Proc計算資產編號(this SqlConnection conn, 計算資產編號Args args)
-                ///	{
-                ///		var dataList = conn.Query<計算資產編號Result>("計算資產編號", args,
-                ///			commandType: System.Data.CommandType.StoredProcedure).ToList();
-                ///		return dataList;
-                ///	}
+                ///    public static List<計算資產編號Result> Call計算資產編號(this SqlConnection conn, 計算資產編號Args args)
+                ///    {
+                ///        var dataList = conn.Query<計算資產編號Result>("計算資產編號", args,
+                ///            commandType: System.Data.CommandType.StoredProcedure).AsList();
+                ///        return dataList;
+                ///    }
                 ///}
 
                 pocoCode.AppendLine();
                 pocoCode.AppendLine("static partial class DBHelperClassExtensions");
                 pocoCode.AppendLine("{");
-                
-                if(f_NonParam)
+
+                if (f_NonParam)
                     pocoCode.AppendLine($"public static List<{proc.SPECIFIC_NAME}Result> Call{proc.SPECIFIC_NAME}(this SqlConnection conn)");
                 else
                     pocoCode.AppendLine($"public static List<{proc.SPECIFIC_NAME}Result> Call{proc.SPECIFIC_NAME}(this SqlConnection conn, {proc.SPECIFIC_NAME}Args args)");
 
                 pocoCode.AppendLine("{");
-                
-                if(f_NonParam)
+
+                if (f_NonParam)
                     pocoCode.AppendLine($"{indent}var dataList = conn.Query<{proc.SPECIFIC_NAME}Result>(\"{proc.SPECIFIC_NAME}\",");
                 else
                     pocoCode.AppendLine($"{indent}var dataList = conn.Query<{proc.SPECIFIC_NAME}Result>(\"{proc.SPECIFIC_NAME}\", args,");
