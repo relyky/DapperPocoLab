@@ -32,7 +32,8 @@ namespace DapperPocoLab
                     return "Byte[]";
                 case "bit":
                     return "bool";
-                case "char":
+                //case "char":
+                case string t when t.StartsWith("char"):
                     return "char";
                 case "cursor":
                     return string.Empty;
@@ -48,11 +49,13 @@ namespace DapperPocoLab
                     return "int";
                 case "money":
                     return "Decimal";
-                case "nchar":
+                //case "nchar":
+                case string t when t.StartsWith("nchar"):
                     return "string";
                 case "numeric":
                     return "Decimal";
-                case "nvarchar":
+                //case "nvarchar":
+                case string t when t.StartsWith("nvarchar"):
                     return "string";
                 case "real":
                     return "single";
@@ -66,7 +69,8 @@ namespace DapperPocoLab
                     return "Byte[]";
                 case "xml":
                     return "string";
-                case "varchar":
+                //case "varchar":
+                case string t when t.StartsWith("varchar"):
                     return "string";
                 case "smalldatetime":
                     return "DateTime";
