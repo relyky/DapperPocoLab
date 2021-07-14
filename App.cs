@@ -382,10 +382,10 @@ namespace DapperPocoLab
                 //## Procedure Instance ------------
                 ///static partial class DBHelperClassExtensions
                 ///{
-                ///    public static List<計算資產編號Result> Call計算資產編號(this SqlConnection conn, 計算資產編號Args args)
+                ///    public static List<查詢電腦設備領用裝況Result> Call查詢電腦設備領用裝況(this SqlConnection conn, 查詢電腦設備領用裝況Args args)
                 ///    {
-                ///        var dataList = conn.Query<計算資產編號Result>("計算資產編號", args,
-                ///            commandType: System.Data.CommandType.StoredProcedure).AsList();
+                ///        string sql = @"SELECT * FROM [dbo].[查詢電腦設備領用裝況](@帳卡編號,@使用者代碼,@領用起日,@領用訖日,@領用狀況); ";
+                ///        var dataList = conn.Query<查詢電腦設備領用裝況Result>(sql, args).AsList();
                 ///        return dataList;
                 ///    }
                 ///}
@@ -394,19 +394,14 @@ namespace DapperPocoLab
                 pocoCode.AppendLine("static partial class DBHelperClassExtensions");
                 pocoCode.AppendLine("{");
 
-                if (f_NonParam)
-                    pocoCode.AppendLine($"public static List<{proc.SPECIFIC_NAME}Result> Call{proc.SPECIFIC_NAME}(this SqlConnection conn)");
-                else
-                    pocoCode.AppendLine($"public static List<{proc.SPECIFIC_NAME}Result> Call{proc.SPECIFIC_NAME}(this SqlConnection conn, {proc.SPECIFIC_NAME}Args args)");
-
+                pocoCode.AppendLine($"public static List<{proc.SPECIFIC_NAME}Result> Call{proc.SPECIFIC_NAME}(this SqlConnection conn, {proc.SPECIFIC_NAME}Args args)");
                 pocoCode.AppendLine("{");
+                
+                pocoCode.Append($"{indent}var sql = @\"SELECT * FROM [{proc.SPECIFIC_SCHEMA}].[{proc.SPECIFIC_NAME}](");
+                pocoCode.Append(String.Join(",", proc.ParamList.Select(c => c.PARAMETER_NAME)));
+                pocoCode.AppendLine($"); \"; ");
 
-                if (f_NonParam)
-                    pocoCode.AppendLine($"{indent}var dataList = conn.Query<{proc.SPECIFIC_NAME}Result>(\"{proc.SPECIFIC_NAME}\",");
-                else
-                    pocoCode.AppendLine($"{indent}var dataList = conn.Query<{proc.SPECIFIC_NAME}Result>(\"{proc.SPECIFIC_NAME}\", args,");
-
-                pocoCode.AppendLine($"{indent}{indent}commandType: System.Data.CommandType.StoredProcedure).AsList();");
+                pocoCode.AppendLine($"{indent}var dataList = conn.Query<{proc.SPECIFIC_NAME}Result>(sql, args).AsList();");
                 pocoCode.AppendLine($"{indent}return dataList;");
                 //------
                 pocoCode.AppendLine("}");
@@ -464,6 +459,6 @@ namespace DapperPocoLab
 
         }
 
-        
+
     }
 }
