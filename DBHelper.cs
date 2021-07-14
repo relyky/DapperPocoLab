@@ -59,7 +59,7 @@ ORDER BY TABLE_NAME, ORDINAL_POSITION ASC ";
             return columnList;
         }
 
-        public static List<ProcedureInfo> GetProcedureInfo(SqlConnection conn) 
+        public static List<ProcedureInfo> GetProcedureInfo(SqlConnection conn)
         {
             string sql1 = @"SELECT SPECIFIC_CATALOG, SPECIFIC_SCHEMA, SPECIFIC_NAME, ROUTINE_TYPE
   FROM INFORMATION_SCHEMA.ROUTINES
@@ -76,11 +76,11 @@ ORDER BY TABLE_NAME, ORDINAL_POSITION ASC ";
             foreach (var info in conn.Query<ProcedureInfo>(sql1).ToList())
             {
                 // parameter info
-                var paramList = conn.Query<ParameterInfo>(sql2, new { info.SPECIFIC_CATALOG, info.SPECIFIC_SCHEMA, info.SPECIFIC_NAME }).ToList();
-                info.paramList = paramList;
-                
-                // result info
+                info.ParamList = conn.Query<ParameterInfo>(sql2, new { info.SPECIFIC_CATALOG, info.SPECIFIC_SCHEMA, info.SPECIFIC_NAME }).ToList();
 
+                // result column info
+                info.ColumnList = conn.Query<ResultColumnInfo>("sp_describe_first_result_set", new { tsql = info.SPECIFIC_NAME },
+                    commandType: System.Data.CommandType.StoredProcedure).ToList();
 
                 procedureList.Add(info);
             }
@@ -112,15 +112,15 @@ ORDER BY TABLE_NAME, ORDINAL_POSITION ASC ";
         public string MS_Description { get; set; }
     }
 
-    class ProcedureInfo 
+    class ProcedureInfo
     {
         public string SPECIFIC_CATALOG;
         public string SPECIFIC_SCHEMA;
         public string SPECIFIC_NAME;
         public string ROUTINE_TYPE;
 
-        public List<ParameterInfo> paramList;
-        public List<ResultFieldInfo> fieldList;
+        public List<ParameterInfo> ParamList;
+        public List<ResultColumnInfo> ColumnList;
     }
 
     class ParameterInfo
@@ -133,8 +133,11 @@ ORDER BY TABLE_NAME, ORDINAL_POSITION ASC ";
         public string DATA_TYPE;
     }
 
-    class ResultFieldInfo 
-    { 
-    
+    class ResultColumnInfo
+    {
+        public string name;
+        public int column_ordinal;
+        public bool is_nullable;
+        public string system_type_name;
     }
 }

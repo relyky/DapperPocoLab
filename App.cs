@@ -167,7 +167,7 @@ namespace DapperPocoLab
                 pocoCode.AppendLine("}"); // end of: Namespace
                 pocoCode.AppendLine();
 
-                //## 一個Table一個檔案
+                //## 一個 Table 一個檔案
                 File.WriteAllText(Path.Combine(outDir.FullName, $"{table.TABLE_NAME}.cs"), pocoCode.ToString(), encoding: Encoding.UTF8);
                 Console.WriteLine(pocoCode.ToString());
             });
@@ -177,6 +177,19 @@ namespace DapperPocoLab
         public void SubGenerateProcPocoCode(SqlConnection conn, DirectoryInfo outDir)
         {
             var procList = DBHelper.GetProcedureInfo(conn);
+            procList.ForEach(proc =>
+            {
+                Console.WriteLine($"{Utils.JsonSerialize(proc, true, true)}");
+                StringBuilder pocoCode = new StringBuilder();
+
+
+
+
+                //## 一個 Procedure 一個檔案
+                File.WriteAllText(Path.Combine(outDir.FullName, $"{proc.SPECIFIC_NAME}.cs"), pocoCode.ToString(), encoding: Encoding.UTF8);
+                Console.WriteLine(pocoCode.ToString());
+            });
+
         }
     }
 }

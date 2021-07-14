@@ -9,12 +9,13 @@ namespace DapperPocoLab
 {
     class Utils
     {
-        public static string JsonSerialize(object obj, bool WriteIndented)
+        public static string JsonSerialize(object obj, bool WriteIndented, bool IncludeFields = false)
         {
             string json = JsonSerializer.Serialize(obj, new JsonSerializerOptions
             {
                 Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping, // 中文字不編碼
-                WriteIndented = WriteIndented  // 換行與縮排
+                WriteIndented = WriteIndented,  // 換行與縮排
+                IncludeFields = IncludeFields   // 非 Property 欄位
             });
 
             return json;
