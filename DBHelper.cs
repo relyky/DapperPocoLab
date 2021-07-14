@@ -59,7 +59,7 @@ ORDER BY TABLE_NAME, ORDINAL_POSITION ASC ";
             return columnList;
         }
 
-        public static List<ProcedureInfo> GetProcedureInfo(SqlConnection conn)
+        public static List<RoutineInfo> GetProcedureInfo(SqlConnection conn)
         {
             string sql1 = @"SELECT SPECIFIC_CATALOG, SPECIFIC_SCHEMA, SPECIFIC_NAME, ROUTINE_TYPE
   FROM INFORMATION_SCHEMA.ROUTINES
@@ -72,15 +72,25 @@ ORDER BY TABLE_NAME, ORDINAL_POSITION ASC ";
   AND SPECIFIC_SCHEMA = @SPECIFIC_SCHEMA
   AND SPECIFIC_CATALOG = @SPECIFIC_CATALOG; ";
 
-            List<ProcedureInfo> procedureList = new List<ProcedureInfo>();
-            foreach (var info in conn.Query<ProcedureInfo>(sql1).ToList())
+            List<RoutineInfo> procedureList = new List<RoutineInfo>();
+            foreach (var info in conn.Query<RoutineInfo>(sql1).ToList())
             {
                 // parameter info
                 info.ParamList = conn.Query<ParameterInfo>(sql2, new { info.SPECIFIC_CATALOG, info.SPECIFIC_SCHEMA, info.SPECIFIC_NAME }).ToList();
 
+                //// result column info
+                //info.ColumnList = conn.Query<ResultColumnInfo>("sp_describe_first_result_set", new { tsql = info.SPECIFIC_NAME },
+                //    commandType: System.Data.CommandType.StoredProcedure).ToList();
+
                 // result column info
-                info.ColumnList = conn.Query<ResultColumnInfo>("sp_describe_first_result_set", new { tsql = info.SPECIFIC_NAME },
-                    commandType: System.Data.CommandType.StoredProcedure).ToList();
+                info.ColumnList = conn.Query("sp_describe_first_result_set", new { tsql = info.SPECIFIC_NAME },
+                    commandType: System.Data.CommandType.StoredProcedure).Select(c => new RoutineColumnInfo
+                    {
+                        COLUMN_NAME = (string)c.name,
+                        ORDINAL_POSITION = (int)c.column_ordinal,
+                        IS_NULLABLE = (bool)c.is_nullable ? "YES" : "NO",
+                        DATA_TYPE = (string)c.system_type_name
+                    }).ToList();
 
                 procedureList.Add(info);
             }
@@ -112,32 +122,40 @@ ORDER BY TABLE_NAME, ORDINAL_POSITION ASC ";
         public string MS_Description { get; set; }
     }
 
-    class ProcedureInfo
+    class RoutineInfo
     {
-        public string SPECIFIC_CATALOG;
-        public string SPECIFIC_SCHEMA;
-        public string SPECIFIC_NAME;
-        public string ROUTINE_TYPE;
+        public string SPECIFIC_CATALOG { get; set; }
+        public string SPECIFIC_SCHEMA { get; set; }
+        public string SPECIFIC_NAME { get; set; }
+        public string ROUTINE_TYPE { get; set; }
 
-        public List<ParameterInfo> ParamList;
-        public List<ResultColumnInfo> ColumnList;
+        public List<ParameterInfo> ParamList { get; set; }
+        public List<RoutineColumnInfo> ColumnList { get; set; }
     }
 
     class ParameterInfo
     {
-        public string PARAMETER_NAME;
-        public int ORDINAL_POSITION;
-        public string SPECIFIC_CATALOG;
-        public string SPECIFIC_SCHEMA;
-        public string PECIFIC_NAME;
-        public string DATA_TYPE;
+        public string PARAMETER_NAME { get; set; }
+        public int ORDINAL_POSITION { get; set; }
+        public string SPECIFIC_CATALOG { get; set; }
+        public string SPECIFIC_SCHEMA { get; set; }
+        public string PECIFIC_NAME { get; set; }
+        public string DATA_TYPE { get; set; }
     }
 
-    class ResultColumnInfo
+    class RoutineColumnInfo
     {
-        public string name;
-        public int column_ordinal;
-        public bool is_nullable;
-        public string system_type_name;
+        public string COLUMN_NAME { get; set; }
+        public int ORDINAL_POSITION { get; set; }
+        public string IS_NULLABLE { get; set; }
+        public string DATA_TYPE { get; set; }
     }
+
+    //class ResultColumnInfo
+    //{
+    //    public string name;
+    //    public int column_ordinal;
+    //    public bool is_nullable;
+    //    public string system_type_name;
+    //}
 }

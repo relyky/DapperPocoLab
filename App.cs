@@ -203,10 +203,10 @@ namespace DapperPocoLab
                 pocoCode.AppendLine("{");
                 proc.ColumnList.ForEach(col =>
                 {
-                    string dataType = Utils.GetNetDataType(col.system_type_name);
-                    string nullable = (dataType != "string" && col.is_nullable) ? "?" : "";
+                    string dataType = Utils.GetNetDataType(col.DATA_TYPE);
+                    string nullable = (dataType != "string" && col.IS_NULLABLE == "YES") ? "?" : "";
 
-                    pocoCode.AppendLine($"{indent}public {dataType}{nullable} {col.name} {{ get; set; }}");
+                    pocoCode.AppendLine($"{indent}public {dataType}{nullable} {col.COLUMN_NAME} {{ get; set; }}");
                 });
                 pocoCode.AppendLine("}"); // end of: Reslt Column 
 
