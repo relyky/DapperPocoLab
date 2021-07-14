@@ -10,14 +10,14 @@ namespace DapperPocoLab
 {
     class DBHelper
     {
-        public static List<TableInfo> GetTableList(SqlConnection conn)
+        public static List<TableInfo> LoadTable(SqlConnection conn)
         {
             string sql = @"SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME != 'sysdiagrams' ";
             var tableList = conn.Query<TableInfo>(sql).ToList();
             return tableList;
         }
 
-        public static List<ColumnInfo> GetColumnList(SqlConnection conn, string tableName, string tableSchema = "dbo")
+        public static List<ColumnInfo> LoadTableColumn(SqlConnection conn, string tableName, string tableSchema = "dbo")
         {
             string sql = $@"WITH PK AS (
 SELECT TC.CONSTRAINT_CATALOG,TC.CONSTRAINT_SCHEMA,TC.CONSTRAINT_NAME,TC.TABLE_NAME,TC.CONSTRAINT_TYPE, KC.COLUMN_NAME
@@ -59,7 +59,7 @@ ORDER BY TABLE_NAME, ORDINAL_POSITION ASC ";
             return columnList;
         }
 
-        public static List<RoutineInfo> GetProcedureInfo(SqlConnection conn)
+        public static List<RoutineInfo> LoadProcedure(SqlConnection conn)
         {
             string sql1 = @"SELECT SPECIFIC_CATALOG, SPECIFIC_SCHEMA, SPECIFIC_NAME, ROUTINE_TYPE
   FROM INFORMATION_SCHEMA.ROUTINES
@@ -91,6 +91,40 @@ ORDER BY TABLE_NAME, ORDINAL_POSITION ASC ";
                         IS_NULLABLE = (bool)c.is_nullable ? "YES" : "NO",
                         DATA_TYPE = (string)c.system_type_name
                     }).ToList();
+
+                procedureList.Add(info);
+            }
+
+            return procedureList;
+        }
+
+        public static List<RoutineInfo> LoadTableValuedFunction(SqlConnection conn)
+        {
+            string sql1 = @"SELECT SPECIFIC_CATALOG, SPECIFIC_SCHEMA, SPECIFIC_NAME, ROUTINE_TYPE
+ FROM INFORMATION_SCHEMA.ROUTINES
+ WHERE ROUTINE_TYPE = 'FUNCTION'
+  AND DATA_TYPE = 'TABLE'; ";
+
+            string sql2 = @"SELECT SPECIFIC_CATALOG, SPECIFIC_SCHEMA, SPECIFIC_NAME, ORDINAL_POSITION, PARAMETER_NAME, DATA_TYPE
+ FROM INFORMATION_SCHEMA.PARAMETERS
+ WHERE SPECIFIC_NAME = @SPECIFIC_NAME
+  AND SPECIFIC_SCHEMA = @SPECIFIC_SCHEMA
+  AND SPECIFIC_CATALOG = @SPECIFIC_CATALOG; ";
+
+            string sql3 = @"SELECT COLUMN_NAME ,ORDINAL_POSITION ,DATA_TYPE,IS_NULLABLE 
+ FROM INFORMATION_SCHEMA.ROUTINE_COLUMNS
+ WHERE TABLE_NAME = @SPECIFIC_NAME
+  AND TABLE_SCHEMA = @SPECIFIC_SCHEMA
+  AND TABLE_CATALOG = @SPECIFIC_CATALOG; ";
+
+            List<RoutineInfo> procedureList = new List<RoutineInfo>();
+            foreach (var info in conn.Query<RoutineInfo>(sql1).ToList())
+            {
+                // parameter info
+                info.ParamList = conn.Query<ParameterInfo>(sql2, new { info.SPECIFIC_CATALOG, info.SPECIFIC_SCHEMA, info.SPECIFIC_NAME }).ToList();
+
+                // result column info
+                info.ColumnList = conn.Query<RoutineColumnInfo>(sql3, new { info.SPECIFIC_CATALOG, info.SPECIFIC_SCHEMA, info.SPECIFIC_NAME }).ToList();
 
                 procedureList.Add(info);
             }
