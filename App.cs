@@ -196,7 +196,7 @@ namespace DapperPocoLab
                 //## Procedure Result Class ------------
                 pocoCode.AppendLine($"public class {proc.SPECIFIC_NAME}Result ");
                 pocoCode.AppendLine("{");
-                proc.ColumnList.ForEach(col => 
+                proc.ColumnList.ForEach(col =>
                 {
                     string dataType = Utils.GetNetDataType(col.system_type_name);
                     string nullable = (dataType != "string" && col.is_nullable) ? "?" : "";
@@ -207,16 +207,20 @@ namespace DapperPocoLab
 
 
                 //## Procedure Parameter Class ------------
-                pocoCode.AppendLine();
-                pocoCode.AppendLine($"public class {proc.SPECIFIC_NAME}Args ");
-                pocoCode.AppendLine("{");
-                proc.ParamList.ForEach(arg =>
+                bool f_NonParam = proc.ParamList.Count <= 0; // 無輸入參數
+                if (!f_NonParam)
                 {
-                    string dataType = Utils.GetNetDataType(arg.DATA_TYPE);
+                    pocoCode.AppendLine();
+                    pocoCode.AppendLine($"public class {proc.SPECIFIC_NAME}Args ");
+                    pocoCode.AppendLine("{");
+                    proc.ParamList.ForEach(arg =>
+                    {
+                        string dataType = Utils.GetNetDataType(arg.DATA_TYPE);
 
-                    pocoCode.AppendLine($"{indent}public {dataType} {arg.PARAMETER_NAME.Substring(1)} {{ get; set; }}");
-                });
-                pocoCode.AppendLine("}"); // end of: Reslt Column 
+                        pocoCode.AppendLine($"{indent}public {dataType} {arg.PARAMETER_NAME.Substring(1)} {{ get; set; }}");
+                    });
+                    pocoCode.AppendLine("}"); // end of: Reslt Column 
+                }
 
 
                 //## Procedure Instance ------------
@@ -234,10 +238,19 @@ namespace DapperPocoLab
                 pocoCode.AppendLine();
                 pocoCode.AppendLine("static partial class DBHelperClassExtensions");
                 pocoCode.AppendLine("{");
+                
+                if(f_NonParam)
+                    pocoCode.AppendLine($"public static List<{proc.SPECIFIC_NAME}Result> Call{proc.SPECIFIC_NAME}(this SqlConnection conn)");
+                else
+                    pocoCode.AppendLine($"public static List<{proc.SPECIFIC_NAME}Result> Call{proc.SPECIFIC_NAME}(this SqlConnection conn, {proc.SPECIFIC_NAME}Args args)");
 
-                pocoCode.AppendLine($"public static List<{proc.SPECIFIC_NAME}Result> Call{proc.SPECIFIC_NAME}(this SqlConnection conn, {proc.SPECIFIC_NAME}Args args)");
                 pocoCode.AppendLine("{");
-                pocoCode.AppendLine($"{indent}var dataList = conn.Query<{proc.SPECIFIC_NAME}Result>(\"{proc.SPECIFIC_NAME}\", args,");
+                
+                if(f_NonParam)
+                    pocoCode.AppendLine($"{indent}var dataList = conn.Query<{proc.SPECIFIC_NAME}Result>(\"{proc.SPECIFIC_NAME}\",");
+                else
+                    pocoCode.AppendLine($"{indent}var dataList = conn.Query<{proc.SPECIFIC_NAME}Result>(\"{proc.SPECIFIC_NAME}\", args,");
+
                 pocoCode.AppendLine($"{indent}{indent}commandType: System.Data.CommandType.StoredProcedure).AsList();");
                 pocoCode.AppendLine($"{indent}return dataList;");
                 //------
