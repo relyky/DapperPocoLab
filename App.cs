@@ -54,7 +54,7 @@ namespace DapperPocoLab
                 //## 開始產生 POCO classes 
                 using (var conn = new SqlConnection(connStr))
                 {
-                    //this.SubGenerateTablePocoCode(conn, outDir);
+                    this.SubGenerateTablePocoCode(conn, outDir);
 
                     this.SubGenerateProcPocoCode(conn, outDir);
                 }
@@ -217,7 +217,7 @@ namespace DapperPocoLab
                 ///    public string 品項類別 { get; set; }
                 ///}
 
-                bool f_NonParam = proc.ParamList.Count <= 0; // 無輸入參數
+                bool f_NonParam = proc.ParamList.Count <= 0; // 旗標：無輸入參數
                 if (!f_NonParam)
                 {
                     pocoCode.AppendLine();
@@ -263,9 +263,50 @@ namespace DapperPocoLab
                 pocoCode.AppendLine($"{indent}return dataList;");
                 //------
                 pocoCode.AppendLine("}");
-                pocoCode.AppendLine("}"); // end of: Procedure Instance 
+
+                //## Procedure Instance : method 2 直接帶入參數 ------------
+                ///static partial class DBHelperClassExtensions
+                ///{
+                ///    public static List<計算資產編號Result> Call計算資產編號(this SqlConnection conn, string 品項類別)
+                ///    {
+                ///         var args = new {
+                ///             品項類別
+                ///         };   
+                /// 
+                ///        var dataList = conn.Query<計算資產編號Result>("計算資產編號", args,
+                ///            commandType: System.Data.CommandType.StoredProcedure).AsList();
+                ///        return dataList;
+                ///    }
+                ///}
+
+                //※ 無參數狀況下會重複，故不產出。
+                if (!f_NonParam)
+                {
+                    pocoCode.AppendLine();
+                    pocoCode.Append($"public static List<{proc.SPECIFIC_NAME}Result> Call{proc.SPECIFIC_NAME}(this SqlConnection conn");
+                    proc.ParamList.ForEach(arg =>
+                    {
+                        string dataType = Utils.GetNetDataType(arg.DATA_TYPE);
+                        pocoCode.Append($", {dataType} {arg.PARAMETER_NAME.Substring(1)}");
+                    });
+                    pocoCode.AppendLine(")");
+                    pocoCode.AppendLine("{");
+                    pocoCode.AppendLine($"{indent}var args = new {{");
+                    proc.ParamList.ForEach(arg =>
+                    {
+                        pocoCode.AppendLine($"{indent}{indent}{arg.PARAMETER_NAME.Substring(1)},");
+                    });
+                    pocoCode.AppendLine($"{indent}}};");
+                    pocoCode.AppendLine("");
+                    pocoCode.AppendLine($"{indent}var dataList = conn.Query<{proc.SPECIFIC_NAME}Result>(\"{proc.SPECIFIC_NAME}\", args,");
+                    pocoCode.AppendLine($"{indent}{indent}commandType: System.Data.CommandType.StoredProcedure).AsList();");
+                    pocoCode.AppendLine($"{indent}return dataList;");
+                    //------
+                    pocoCode.AppendLine("}");
+                }
 
                 //---------------------
+                pocoCode.AppendLine("}"); // end of: Procedure Instance 
                 pocoCode.AppendLine("}"); // end of: Namespace
                 pocoCode.AppendLine();
 
