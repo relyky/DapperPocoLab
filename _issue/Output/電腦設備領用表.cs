@@ -10,7 +10,7 @@ public class 電腦設備領用表
 {
     [Key]
     [Required]
-    public int? 序號 { get; set; }
+    public int 序號 { get; set; }
     [Required]
     public string 帳卡編號 { get; set; }
     [Required]
