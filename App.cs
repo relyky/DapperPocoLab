@@ -54,15 +54,15 @@ namespace DapperPocoLab
                 //## 開始產生 POCO classes 
                 using (var conn = new SqlConnection(connStr))
                 {
-                    //SubGenerateTablePocoCode(conn, outDir);
+                    SubGenerateTablePocoCode(conn, outDir);
 
-                    //SubGenerateProcPocoCode(conn, outDir);
+                    SubGenerateProcPocoCode(conn, outDir);
 
                     SubGenerateTableValuedFunctionPocoCode(conn, outDir);
                 }
 
                 Console.WriteLine();
-                Console.WriteLine("已成功產生 Dapper POCO classes 程式碼，請檢查輸出目錄。");
+                Console.WriteLine("已成功產生 Dapper POCO 程式碼，請檢查輸出目錄。");
             }
             finally
             {
