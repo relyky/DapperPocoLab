@@ -103,7 +103,8 @@ namespace DapperPocoLab
                     string dataType = Utils.GetNetDataType(col.DATA_TYPE);
                     bool isKey = col.IS_PK == "YES";
                     bool isIdentity = col.IS_IDENTITY == "YES";
-                    string nullable = (dataType != "string" && col.IS_NULLABLE == "YES") ? "?" : "";
+                    //string nullable = (dataType != "string" && col.IS_NULLABLE == "YES") ? "?" : "";
+                    string nullable = (dataType != "string") ? "?" : ""; // ORM 欄位原則上都是 nullable 不然在 input binding 會很難實作。
                     string description = col.MS_Description;
 
                     /// summary

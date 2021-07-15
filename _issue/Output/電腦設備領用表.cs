@@ -10,13 +10,13 @@ public class 電腦設備領用表
 {
     [Key]
     [Required]
-    public int 序號 { get; set; }
+    public int? 序號 { get; set; }
     [Required]
     public string 帳卡編號 { get; set; }
     [Required]
     public string 使用者代碼 { get; set; }
     [Required]
-    public DateTime 領用日期 { get; set; }
+    public DateTime? 領用日期 { get; set; }
     public DateTime? 繳回日期 { get; set; }
     public string 備註 { get; set; }
 
