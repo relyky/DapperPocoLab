@@ -1,5 +1,6 @@
 {
   "ConnectionStrings": {
+    "DefaultConnection": "Data Source=RELYNB2;Initial Catalog=MineDB;Integrated Security=True"
     "DefaultConnection": "Server=192.168.0.68;database=SKB_SRS;uid=sa;pwd=1qaz@WSX"
   },
   "Namespace": "Vista.DB.Schema",
