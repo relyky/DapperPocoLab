@@ -34,7 +34,7 @@ namespace DapperPocoLab
                     return "bool";
                 //case "char":
                 case string t when t.StartsWith("char"):
-                    return "char";
+                    return "string";
                 case "cursor":
                     return string.Empty;
                 case "datetime":
