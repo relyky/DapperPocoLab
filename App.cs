@@ -21,6 +21,7 @@ namespace DapperPocoLab
         readonly string nameSpace;
         readonly string outputFolder;
         readonly string indent;
+        readonly string sqlClientLibrary; // "Microsoft.Data.SqlClient" OR "System.Data.SqlClient"
 
         public App(IConfiguration config)
         {
@@ -32,6 +33,7 @@ namespace DapperPocoLab
             nameSpace = _config["Namespace"];
             outputFolder = _config["OutputFolder"];
             indent = _config["Indent"];
+            sqlClientLibrary = _config["SqlClientLibrary"] ?? "Microsoft.Data.SqlClient";
         }
 
         /// <summary>
@@ -198,8 +200,7 @@ namespace DapperPocoLab
                 pocoCode.AppendLine("using System.Collections.Generic;");
                 pocoCode.AppendLine("using System.ComponentModel.DataAnnotations;");
                 pocoCode.AppendLine("using Dapper;");
-                //pocoCode.AppendLine("using Dapper.Contrib.Extensions;");
-                pocoCode.AppendLine("using Microsoft.Data.SqlClient;");
+                pocoCode.AppendLine($"using {sqlClientLibrary};");
                 pocoCode.AppendLine();
 
 
@@ -342,10 +343,8 @@ namespace DapperPocoLab
                 pocoCode.AppendLine("using System.Collections.Generic;");
                 pocoCode.AppendLine("using System.ComponentModel.DataAnnotations;");
                 pocoCode.AppendLine("using Dapper;");
-                //pocoCode.AppendLine("using Dapper.Contrib.Extensions;");
-                pocoCode.AppendLine("using Microsoft.Data.SqlClient;");
+                pocoCode.AppendLine($"using {sqlClientLibrary};");
                 pocoCode.AppendLine();
-
 
                 //## Procedure Result Class ------------
                 ///public class 計算資產編號Result
