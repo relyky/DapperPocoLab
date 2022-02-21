@@ -198,18 +198,18 @@ namespace DapperPocoLab
                 pocoCode.AppendLine("using System.Collections.Generic;");
                 pocoCode.AppendLine("using System.ComponentModel.DataAnnotations;");
                 pocoCode.AppendLine("using Dapper;");
-            //pocoCode.AppendLine("using Dapper.Contrib.Extensions;");
-            pocoCode.AppendLine("using Microsoft.Data.SqlClient;");
+                //pocoCode.AppendLine("using Dapper.Contrib.Extensions;");
+                pocoCode.AppendLine("using Microsoft.Data.SqlClient;");
                 pocoCode.AppendLine();
 
 
-            //## Procedure Result Class ------------
-            ///public class 計算資產編號Result
-            ///{
-            ///    public string 資產編號 { get; set; }
-            ///}
+                //## Procedure Result Class ------------
+                ///public class 計算資產編號Result
+                ///{
+                ///    public string 資產編號 { get; set; }
+                ///}
 
-            pocoCode.AppendLine($"public class {proc.SPECIFIC_NAME}Result ");
+                pocoCode.AppendLine($"public class {proc.SPECIFIC_NAME}Result ");
                 pocoCode.AppendLine("{");
                 proc.ColumnList.ForEach(col =>
                 {
@@ -221,13 +221,13 @@ namespace DapperPocoLab
                 pocoCode.AppendLine("}"); // end of: Reslt Column 
 
 
-            //## Procedure Parameter Class ------------
-            ///public class 計算資產編號Args
-            ///{
-            ///    public string 品項類別 { get; set; }
-            ///}
+                //## Procedure Parameter Class ------------
+                ///public class 計算資產編號Args
+                ///{
+                ///    public string 品項類別 { get; set; }
+                ///}
 
-            bool f_NonParam = proc.ParamList.Count <= 0; // 旗標：無輸入參數
+                bool f_NonParam = proc.ParamList.Count <= 0; // 旗標：無輸入參數
                 if (!f_NonParam)
                 {
                     pocoCode.AppendLine();
@@ -242,18 +242,18 @@ namespace DapperPocoLab
                     pocoCode.AppendLine("}"); // end of: Reslt Column 
                 }
 
-            //## Procedure Instance ------------
-            ///static partial class DBHelperClassExtensions
-            ///{
-            ///    public static List<計算資產編號Result> Call計算資產編號(this SqlConnection conn, 計算資產編號Args args)
-            ///    {
-            ///        var dataList = conn.Query<計算資產編號Result>("計算資產編號", args,
-            ///            commandType: System.Data.CommandType.StoredProcedure).AsList();
-            ///        return dataList;
-            ///    }
-            ///}
+                //## Procedure Instance ------------
+                ///static partial class DBHelperClassExtensions
+                ///{
+                ///    public static List<計算資產編號Result> Call計算資產編號(this SqlConnection conn, 計算資產編號Args args)
+                ///    {
+                ///        var dataList = conn.Query<計算資產編號Result>("計算資產編號", args,
+                ///            commandType: System.Data.CommandType.StoredProcedure).AsList();
+                ///        return dataList;
+                ///    }
+                ///}
 
-            pocoCode.AppendLine();
+                pocoCode.AppendLine();
                 pocoCode.AppendLine("static partial class DBHelperClassExtensions");
                 pocoCode.AppendLine("{");
 
@@ -271,26 +271,26 @@ namespace DapperPocoLab
 
                 pocoCode.AppendLine($"{indent}{indent}commandType: System.Data.CommandType.StoredProcedure).AsList();");
                 pocoCode.AppendLine($"{indent}return dataList;");
-            //------
-            pocoCode.AppendLine("}");
+                //------
+                pocoCode.AppendLine("}");
 
-            //## Procedure Instance : method 2 直接帶入參數 ------------
-            ///static partial class DBHelperClassExtensions
-            ///{
-            ///    public static List<計算資產編號Result> Call計算資產編號(this SqlConnection conn, string 品項類別)
-            ///    {
-            ///         var args = new {
-            ///             品項類別
-            ///         };   
-            /// 
-            ///        var dataList = conn.Query<計算資產編號Result>("計算資產編號", args,
-            ///            commandType: System.Data.CommandType.StoredProcedure).AsList();
-            ///        return dataList;
-            ///    }
-            ///}
+                //## Procedure Instance : method 2 直接帶入參數 ------------
+                ///static partial class DBHelperClassExtensions
+                ///{
+                ///    public static List<計算資產編號Result> Call計算資產編號(this SqlConnection conn, string 品項類別)
+                ///    {
+                ///         var args = new {
+                ///             品項類別
+                ///         };   
+                /// 
+                ///        var dataList = conn.Query<計算資產編號Result>("計算資產編號", args,
+                ///            commandType: System.Data.CommandType.StoredProcedure).AsList();
+                ///        return dataList;
+                ///    }
+                ///}
 
-            //※ 無參數狀況下會重複，故不產出。
-            if (!f_NonParam)
+                //※ 無參數狀況下會重複，故不產出。
+                if (!f_NonParam)
                 {
                     pocoCode.AppendLine();
                     pocoCode.Append($"public static List<{proc.SPECIFIC_NAME}Result> Call{proc.SPECIFIC_NAME}(this SqlConnection conn");
@@ -312,17 +312,17 @@ namespace DapperPocoLab
                     pocoCode.AppendLine($"{indent}var dataList = conn.Query<{proc.SPECIFIC_NAME}Result>(\"{proc.SPECIFIC_NAME}\", args,");
                     pocoCode.AppendLine($"{indent}{indent}commandType: System.Data.CommandType.StoredProcedure).AsList();");
                     pocoCode.AppendLine($"{indent}return dataList;");
-                //------
-                pocoCode.AppendLine("}");
+                    //------
+                    pocoCode.AppendLine("}");
                 }
 
-            //---------------------
-            pocoCode.AppendLine("}"); // end of: Procedure Instance 
+                //---------------------
+                pocoCode.AppendLine("}"); // end of: Procedure Instance 
                 pocoCode.AppendLine("}"); // end of: Namespace
                 pocoCode.AppendLine();
 
-            //## 一個 Procedure 一個檔案
-            File.WriteAllText(Path.Combine(outDir.FullName, $"{proc.SPECIFIC_NAME}.cs"), pocoCode.ToString(), encoding: Encoding.UTF8);
+                //## 一個 Procedure 一個檔案
+                File.WriteAllText(Path.Combine(outDir.FullName, $"{proc.SPECIFIC_NAME}.cs"), pocoCode.ToString(), encoding: Encoding.UTF8);
                 Console.WriteLine(pocoCode.ToString());
             });
 
@@ -342,18 +342,18 @@ namespace DapperPocoLab
                 pocoCode.AppendLine("using System.Collections.Generic;");
                 pocoCode.AppendLine("using System.ComponentModel.DataAnnotations;");
                 pocoCode.AppendLine("using Dapper;");
-            //pocoCode.AppendLine("using Dapper.Contrib.Extensions;");
-            pocoCode.AppendLine("using Microsoft.Data.SqlClient;");
+                //pocoCode.AppendLine("using Dapper.Contrib.Extensions;");
+                pocoCode.AppendLine("using Microsoft.Data.SqlClient;");
                 pocoCode.AppendLine();
 
 
-            //## Procedure Result Class ------------
-            ///public class 計算資產編號Result
-            ///{
-            ///    public string 資產編號 { get; set; }
-            ///}
+                //## Procedure Result Class ------------
+                ///public class 計算資產編號Result
+                ///{
+                ///    public string 資產編號 { get; set; }
+                ///}
 
-            pocoCode.AppendLine($"public class {proc.SPECIFIC_NAME}Result ");
+                pocoCode.AppendLine($"public class {proc.SPECIFIC_NAME}Result ");
                 pocoCode.AppendLine("{");
                 proc.ColumnList.ForEach(col =>
                 {
@@ -365,13 +365,13 @@ namespace DapperPocoLab
                 pocoCode.AppendLine("}"); // end of: Reslt Column 
 
 
-            //## Procedure Parameter Class ------------
-            ///public class 計算資產編號Args
-            ///{
-            ///    public string 品項類別 { get; set; }
-            ///}
+                //## Procedure Parameter Class ------------
+                ///public class 計算資產編號Args
+                ///{
+                ///    public string 品項類別 { get; set; }
+                ///}
 
-            bool f_NonParam = proc.ParamList.Count <= 0; // 旗標：無輸入參數
+                bool f_NonParam = proc.ParamList.Count <= 0; // 旗標：無輸入參數
                 if (!f_NonParam)
                 {
                     pocoCode.AppendLine();
@@ -387,18 +387,18 @@ namespace DapperPocoLab
                     pocoCode.AppendLine("}"); // end of: Reslt Column 
                 }
 
-            //## Procedure Instance ------------
-            ///static partial class DBHelperClassExtensions
-            ///{
-            ///    public static List<查詢電腦設備領用裝況Result> Call查詢電腦設備領用裝況(this SqlConnection conn, 查詢電腦設備領用裝況Args args, SqlTransaction txn = null)
-            ///    {
-            ///        string sql = @"SELECT * FROM [dbo].[查詢電腦設備領用裝況](@帳卡編號,@使用者代碼,@領用起日,@領用訖日,@領用狀況); ";
-            ///        var dataList = conn.Query<查詢電腦設備領用裝況Result>(sql, args, txn).AsList();
-            ///        return dataList;
-            ///    }
-            ///}
+                //## Procedure Instance ------------
+                ///static partial class DBHelperClassExtensions
+                ///{
+                ///    public static List<查詢電腦設備領用裝況Result> Call查詢電腦設備領用裝況(this SqlConnection conn, 查詢電腦設備領用裝況Args args, SqlTransaction txn = null)
+                ///    {
+                ///        string sql = @"SELECT * FROM [dbo].[查詢電腦設備領用裝況](@帳卡編號,@使用者代碼,@領用起日,@領用訖日,@領用狀況); ";
+                ///        var dataList = conn.Query<查詢電腦設備領用裝況Result>(sql, args, txn).AsList();
+                ///        return dataList;
+                ///    }
+                ///}
 
-            pocoCode.AppendLine();
+                pocoCode.AppendLine();
                 pocoCode.AppendLine("static partial class DBHelperClassExtensions");
                 pocoCode.AppendLine("{");
 
@@ -411,25 +411,25 @@ namespace DapperPocoLab
 
                 pocoCode.AppendLine($"{indent}var dataList = conn.Query<{proc.SPECIFIC_NAME}Result>(sql, args, txn).AsList();");
                 pocoCode.AppendLine($"{indent}return dataList;");
-            //------
-            pocoCode.AppendLine("}");
+                //------
+                pocoCode.AppendLine("}");
 
-            //## Procedure Instance : method 2 直接帶入參數 ------------
-            ///static partial class DBHelperClassExtensions
-            ///{
-            ///    public static List<查詢電腦設備領用裝況Result> Call查詢電腦設備領用裝況(this SqlConnection conn, string 帳卡編號, string 使用者代碼, DateTime? 領用起日, DateTime? 領用訖日, string 領用狀況)
-            ///    {
-            ///        var args = {
-            ///            帳卡編號,使用者代碼,領用起日,領用訖日,領用狀況
-            ///        };
-            ///        string sql = @"SELECT * FROM [dbo].[查詢電腦設備領用裝況](@帳卡編號,@使用者代碼,@領用起日,@領用訖日,@領用狀況); ";
-            ///        var dataList = conn.Query<查詢電腦設備領用裝況Result>(sql, args).AsList();
-            ///        return dataList;
-            ///    }
-            ///}
+                //## Procedure Instance : method 2 直接帶入參數 ------------
+                ///static partial class DBHelperClassExtensions
+                ///{
+                ///    public static List<查詢電腦設備領用裝況Result> Call查詢電腦設備領用裝況(this SqlConnection conn, string 帳卡編號, string 使用者代碼, DateTime? 領用起日, DateTime? 領用訖日, string 領用狀況)
+                ///    {
+                ///        var args = {
+                ///            帳卡編號,使用者代碼,領用起日,領用訖日,領用狀況
+                ///        };
+                ///        string sql = @"SELECT * FROM [dbo].[查詢電腦設備領用裝況](@帳卡編號,@使用者代碼,@領用起日,@領用訖日,@領用狀況); ";
+                ///        var dataList = conn.Query<查詢電腦設備領用裝況Result>(sql, args).AsList();
+                ///        return dataList;
+                ///    }
+                ///}
 
-            //※ 無參數狀況下會重複，故不產出。
-            if (!f_NonParam)
+                //※ 無參數狀況下會重複，故不產出。
+                if (!f_NonParam)
                 {
                     pocoCode.AppendLine();
                     pocoCode.Append($"public static List<{proc.SPECIFIC_NAME}Result> Call{proc.SPECIFIC_NAME}(this SqlConnection conn");
@@ -456,17 +456,17 @@ namespace DapperPocoLab
 
                     pocoCode.AppendLine($"{indent}var dataList = conn.Query<{proc.SPECIFIC_NAME}Result>(sql, args, txn).AsList();");
                     pocoCode.AppendLine($"{indent}return dataList;");
-                //------
-                pocoCode.AppendLine("}");
+                    //------
+                    pocoCode.AppendLine("}");
                 }
 
-            //---------------------
-            pocoCode.AppendLine("}"); // end of: Procedure Instance 
+                //---------------------
+                pocoCode.AppendLine("}"); // end of: Procedure Instance 
                 pocoCode.AppendLine("}"); // end of: Namespace
                 pocoCode.AppendLine();
 
-            //## 一個 Procedure 一個檔案
-            File.WriteAllText(Path.Combine(outDir.FullName, $"{proc.SPECIFIC_NAME}.cs"), pocoCode.ToString(), encoding: Encoding.UTF8);
+                //## 一個 Procedure 一個檔案
+                File.WriteAllText(Path.Combine(outDir.FullName, $"{proc.SPECIFIC_NAME}.cs"), pocoCode.ToString(), encoding: Encoding.UTF8);
                 Console.WriteLine(pocoCode.ToString());
             });
 

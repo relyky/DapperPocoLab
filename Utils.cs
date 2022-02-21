@@ -76,6 +76,8 @@ namespace DapperPocoLab
                     return "DateTime";
                 case "image":
                     return "byte[]";
+                case "uniqueidentifier":
+                    return "Guid";
                 default:
                     return $"{sqlDataTypeName}:not_support"; // not support
                     //return string.Empty;
