@@ -78,6 +78,8 @@ namespace DapperPocoLab
                     return "byte[]";
                 case "uniqueidentifier":
                     return "Guid";
+                case "datetimeoffset":
+                    return "DateTimeOffset";
                 default:
                     return $"{sqlDataTypeName}:not_support"; // not support
                     //return string.Empty;
