@@ -39,10 +39,21 @@ inner join sys.extended_properties sep on
   sep.name = 'MS_Description' and 
   sep.value is not null
 )
+, COMPUTED AS (
+select ss.name [TABLE_SCHEMA], st.name [TABLE_NAME], sc.name [COLUMN_NAME]
+, sc.is_computed [IS_COMPUTED]
+, sc.definition [COMPUTED_DEFINITION]
+from sys.tables st
+inner join sys.computed_columns sc on st.object_id = sc.object_id
+inner join sys.schemas ss on st.schema_id = ss.schema_id
+where sc.is_computed = 1
+)
 SELECT C.COLUMN_NAME, C.ORDINAL_POSITION, C.TABLE_CATALOG, C.TABLE_SCHEMA, C.TABLE_NAME, C.IS_NULLABLE, C.DATA_TYPE
 , IS_IDENTITY = CASE WHEN COLUMNPROPERTY(object_id(C.TABLE_SCHEMA+'.'+C.TABLE_NAME), C.COLUMN_NAME, 'IsIdentity') = 1 THEN 'YES' ELSE 'NO' END
 , IS_PK = CASE WHEN PK.CONSTRAINT_TYPE = 'PRIMARY KEY' THEN 'YES' ELSE 'NO' END
 , MS_Description = MSDESC.MS_Description
+, IS_COMPUTED = CASE WHEN COMPUTED.IS_COMPUTED = 1 THEN 'YES' ELSE 'NO' END
+, COMPUTED.COMPUTED_DEFINITION
 FROM INFORMATION_SCHEMA.COLUMNS C
 LEFT JOIN PK ON C.COLUMN_NAME = PK.COLUMN_NAME AND
   C.TABLE_NAME = PK.TABLE_NAME AND
@@ -51,6 +62,9 @@ LEFT JOIN PK ON C.COLUMN_NAME = PK.COLUMN_NAME AND
 LEFT JOIN MSDESC ON C.COLUMN_NAME = MSDESC.COLUMN_NAME AND
   C.TABLE_NAME = MSDESC.TABLE_NAME AND
   C.TABLE_SCHEMA = MSDESC.TABLE_SCHEMA
+LEFT JOIN COMPUTED ON C.COLUMN_NAME = COMPUTED.COLUMN_NAME AND
+  C.TABLE_NAME = COMPUTED.TABLE_NAME AND
+  C.TABLE_SCHEMA = COMPUTED.TABLE_SCHEMA
 WHERE C.TABLE_NAME = @tableName
  AND C.TABLE_SCHEMA = @tableSchema
 ORDER BY TABLE_NAME, ORDINAL_POSITION ASC ";
@@ -154,6 +168,8 @@ ORDER BY TABLE_NAME, ORDINAL_POSITION ASC ";
         public string IS_IDENTITY { get; set; }
         public string IS_PK { get; set; }
         public string MS_Description { get; set; }
+        public string IS_COMPUTED { get; set; }
+        public string COMPUTED_DEFINITION { get; set; }
     }
 
     class RoutineInfo
