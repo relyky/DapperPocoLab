@@ -27,7 +27,7 @@ namespace DapperPocoLab
     readonly string outputFolder;
     readonly string indent;
     readonly string sqlClientLibrary; // "Microsoft.Data.SqlClient" OR "System.Data.SqlClient"
-    readonly bool exportExcelMode;
+    readonly bool f_exportExcel;
 
     public App(IConfiguration config)
     {
@@ -40,7 +40,7 @@ namespace DapperPocoLab
       outputFolder = _config["OutputFolder"];
       indent = _config["Indent"];
       sqlClientLibrary = _config["SqlClientLibrary"] ?? "Microsoft.Data.SqlClient";
-      exportExcelMode = _config.GetValue<bool>("ExportExcelMode", false);
+      f_exportExcel = _config.GetValue<bool>("ExportExcel", false);
     }
 
     /// <summary>
@@ -63,13 +63,13 @@ namespace DapperPocoLab
         //## 開始產生 POCO classes 
         using (var conn = new SqlConnection(connStr))
         {
-          //SubGenerateTablePocoCode(conn, outDir);
-          ////SubGenerateProcPocoCode(conn, outDir);
-          //SubGenerateProcPocoCodeV2(conn, outDir);
-          //SubGenerateTableValuedFunctionPocoCode(conn, outDir);
-          //SubGenerateTableTypePocoCode(conn, outDir);
+          SubGenerateTablePocoCode(conn, outDir);
+          //SubGenerateProcPocoCode(conn, outDir);
+          SubGenerateProcPocoCodeV2(conn, outDir);
+          SubGenerateTableValuedFunctionPocoCode(conn, outDir);
+          SubGenerateTableTypePocoCode(conn, outDir);
 
-          if (exportExcelMode)
+          if (f_exportExcel)
           {
             SubGenerateTableToExcel(conn, outDir);
           }
