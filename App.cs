@@ -811,25 +811,45 @@ namespace DapperPocoLab
         }).ToList()
       };
 
-      var overviewTpl = new XLTemplate(@"Template/Template_Overview.xlsx");
+      using var overviewTpl = new XLTemplate(@"Template/Template_Overview.xlsx");
       overviewTpl.AddVariable(overview);
       overviewTpl.Generate();
 
       //overviewTpl.SaveAs(fi.FullName);
       workbook.Worksheet("Overview").Delete();
       overviewTpl.Workbook.Worksheet(1).CopyTo(workbook, "Overview");
-      
+
       #endregion 資料庫檔案(物件)總覽
 
+      tableList.ForEach(table =>
+      {
+        //## 一個 Table 一個 sheet
+        var columnList = DBHelper.LoadTableColumn(conn, table.TABLE_NAME);
 
+        RptTableInfo tableInfo = new RptTableInfo
+        {
+          Name = table.TABLE_NAME,
+          Type = table.TABLE_TYPE,
+          PrintDate = $"{DateTime.Now:yyyy-MM-dd}",
+          FieldList = columnList.Select((c, idx) => new RptTableField
+          {
+            Sn = c.ORDINAL_POSITION,
+            Name = c.COLUMN_NAME,
+            Cname = c.MS_Description?.Split(':', '：', '\r', '\n')[0].Trim(),
+            Type = c.DATA_TYPE,
+            Len = "-1".Equals(c.CHARACTER_MAXIMUM_LENGTH) ? "MAX" : c.CHARACTER_MAXIMUM_LENGTH,
+            Pk = "YES".Equals(c.IS_PK) ? "pk" : "", 
+            Default = c.COLUMN_DEFAULT,
+            Nullable = c.IS_NULLABLE,
+            Desc = c.MS_Description
+          }).ToList()
+        };
 
-      //using (var db = new DbDemos())
-      //{
-      //  var cust = db.customers.LoadWith(c => c.Orders).First();
-      //  template.AddVariable(cust);
-      //  template.Generate();
-      //}
-
+        using var tableTpl = new XLTemplate(@"Template/Template_Table.xlsx");
+        tableTpl.AddVariable(tableInfo);
+        tableTpl.Generate();
+        tableTpl.Workbook.Worksheet(1).CopyTo(workbook, table.TABLE_NAME);
+      });
 
       //# 成功存檔
       var fi = new FileInfo(Path.Combine(outDir.FullName, $"{conn.Database}_Schema.xlsx"));

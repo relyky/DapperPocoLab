@@ -23,4 +23,26 @@ internal class OverviewItem
   public string Type { get; set; }
 }
 
+//-------------------------------------
 
+internal class RptTableInfo
+{
+  public string Name { get; set; }
+  public string Type { get; set; }
+  public string PrintDate { get; set; }
+
+  public List<RptTableField> FieldList { get; set; }
+}
+
+internal class RptTableField
+{
+  public string Sn { get; set; }
+  public string Name { get; set; }
+  public string Cname { get; set; }
+  public string Type { get; set; }
+  public string Len { get; set; }
+  public string Pk { get; set; }
+  public string Default { get; set; }
+  public string Nullable { get; set; }
+  public string Desc { get; set; }
+}
