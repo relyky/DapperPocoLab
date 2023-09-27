@@ -50,7 +50,7 @@ inner join sys.computed_columns sc on st.object_id = sc.object_id
 inner join sys.schemas ss on st.schema_id = ss.schema_id
 where sc.is_computed = 1
 )
-SELECT C.COLUMN_NAME, C.ORDINAL_POSITION, C.TABLE_CATALOG, C.TABLE_SCHEMA, C.TABLE_NAME, C.IS_NULLABLE, C.DATA_TYPE
+SELECT C.COLUMN_NAME, C.ORDINAL_POSITION, C.TABLE_CATALOG, C.TABLE_SCHEMA, C.TABLE_NAME, C.IS_NULLABLE, C.DATA_TYPE, C.CHARACTER_MAXIMUM_LENGTH, C.COLUMN_DEFAULT
 , IS_IDENTITY = CASE WHEN COLUMNPROPERTY(object_id(C.TABLE_SCHEMA+'.'+C.TABLE_NAME), C.COLUMN_NAME, 'IsIdentity') = 1 THEN 'YES' ELSE 'NO' END
 , IS_PK = CASE WHEN PK.CONSTRAINT_TYPE = 'PRIMARY KEY' THEN 'YES' ELSE 'NO' END
 , MS_Description = MSDESC.MS_Description
@@ -206,6 +206,8 @@ ORDER BY [ORDINAL_POSITION] ASC ";
     public string TABLE_SCHEMA { get; set; }
     public string TABLE_NAME { get; set; }
     public string DATA_TYPE { get; set; }
+    public string CHARACTER_MAXIMUM_LENGTH { get; set; }
+    public string COLUMN_DEFAULT { get; set; }
     public string IS_NULLABLE { get; set; }
     public string IS_IDENTITY { get; set; }
     public string IS_PK { get; set; }
