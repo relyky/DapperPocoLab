@@ -15,6 +15,16 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Remove="Template\Template_Overview.xlsx" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="Template\Template_Overview.xlsx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="ClosedXML.Report" Version="0.2.8" />
     <PackageReference Include="Dapper" Version="2.0.151" />
     <PackageReference Include="Microsoft.Data.SqlClient" Version="5.1.1" />

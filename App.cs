@@ -1,4 +1,8 @@
 ﻿using ClosedXML.Excel;
+using ClosedXML.Report;
+using DapperPocoLab.Models;
+using DocumentFormat.OpenXml.Office2013.Excel;
+using Irony.Parsing.Construction;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
 using System;
@@ -788,73 +792,44 @@ namespace DapperPocoLab
     /// </summary>
     void SubGenerateTableToExcel(SqlConnection conn, DirectoryInfo outDir)
     {
-      using var workbook = new XLWorkbook();
+      using var workbook = new XLWorkbook(@"Template/Template_Overview.xlsx");
 
       var tableList = DBHelper.LoadTable(conn);
 
       #region 資料庫檔案(物件)總覽
-      var sheet1 = workbook.Worksheets.Add("Overview");
-      sheet1.Cell("A1").Value = "資料庫檔案(物件)一覽表";
-      sheet1.Cell("A2").Value = "資料庫名稱";
-      sheet1.Cell("B2").Value = conn.Database;
-      sheet1.Cell("A3").Value = "製表日期";
-      sheet1.Cell("B3").Value = $"{DateTime.Now:yyyy-MM-dd}";
 
-      sheet1.Cell("A5").Value = "序號";
-      sheet1.Cell("B5").Value = "物件名稱";
-      sheet1.Cell("C5").Value = "物件說明";
-      sheet1.Cell("D5").Value = "物件種類";
-
-      int rowIdx = 6;
-      tableList.ForEach(table =>
+      OverviewInfo overview = new OverviewInfo
       {
-        sheet1.Cell(rowIdx, 1).Value = rowIdx - 5;
-        sheet1.Cell(rowIdx, 2).Value = table.TABLE_NAME;
-        //sheet1.Cell(rowIdx, 3).Value = null;
-        sheet1.Cell(rowIdx, 4).Value = table.TABLE_TYPE;
-        rowIdx++;
-      });
+        DbName = conn.Database,
+        PrintDate = $"{DateTime.Now:yyyy-MM-dd}",
+        ItemList = tableList.Select((c, idx) => new OverviewItem
+        {
+          Sn = $"{idx}",
+          Name = c.TABLE_NAME,
+          Desc = "",
+          Type = c.TABLE_TYPE
+        }).ToList()
+      };
+
+      var overviewTpl = new XLTemplate(@"Template/Template_Overview.xlsx");
+      overviewTpl.AddVariable(overview);
+      overviewTpl.Generate();
+
+      //overviewTpl.SaveAs(fi.FullName);
+      workbook.Worksheet("Overview").Delete();
+      overviewTpl.Workbook.Worksheet(1).CopyTo(workbook, "Overview");
+      
       #endregion 資料庫檔案(物件)總覽
 
-      tableList.ForEach(table =>
-      {
-        //## 一個 Table 一個 sheet
-        var sheet = workbook.Worksheets.Add(table.TABLE_NAME);
 
-        // table info
-        sheet.Cell("A1").Value = "檔案(物件)名稱";
-        sheet.Cell("B1").Value = table.TABLE_NAME;
-        sheet.Cell("C1").Value = "檔案(物件)種類";
-        sheet.Cell("D1").Value = table.TABLE_TYPE;
-        sheet.Cell("A2").Value = "說明";
 
-        // column info
-        sheet.Cell("A3").Value = "序號";
-        sheet.Cell("B3").Value = "欄位名稱";
-        sheet.Cell("C3").Value = "欄位說明";
-        sheet.Cell("D3").Value = "型態";
-        sheet.Cell("E3").Value = "長度";
-        sheet.Cell("F3").Value = "鍵別";
-        sheet.Cell("G3").Value = "預設值";
-        sheet.Cell("H3").Value = "Nullable";
-        sheet.Cell("I3").Value = "備註";
+      //using (var db = new DbDemos())
+      //{
+      //  var cust = db.customers.LoadWith(c => c.Orders).First();
+      //  template.AddVariable(cust);
+      //  template.Generate();
+      //}
 
-        var columnList = DBHelper.LoadTableColumn(conn, table.TABLE_NAME);
-        int rowIdx = 4;
-        columnList.ForEach(col =>
-        {
-          sheet.Cell(rowIdx, 1).Value = col.ORDINAL_POSITION;
-          sheet.Cell(rowIdx, 2).Value = col.COLUMN_NAME;
-          sheet.Cell(rowIdx, 3).Value = col.MS_Description?.Split(':', '：', '\r', '\n')[0].Trim();
-          sheet.Cell(rowIdx, 4).Value = col.DATA_TYPE;
-          sheet.Cell(rowIdx, 5).Value = "-1".Equals(col.CHARACTER_MAXIMUM_LENGTH) ? "MAX" : col.CHARACTER_MAXIMUM_LENGTH;
-          sheet.Cell(rowIdx, 6).Value = col.IS_PK == "YES" ? "PK" : "";
-          sheet.Cell(rowIdx, 7).Value = col.COLUMN_DEFAULT;
-          sheet.Cell(rowIdx, 8).Value = col.IS_NULLABLE;
-          sheet.Cell(rowIdx, 9).Value = col.MS_Description;
-          rowIdx++;
-        });
-      });
 
       //# 成功存檔
       var fi = new FileInfo(Path.Combine(outDir.FullName, $"{conn.Database}_Schema.xlsx"));
