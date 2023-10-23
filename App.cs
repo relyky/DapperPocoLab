@@ -410,7 +410,8 @@ namespace DapperPocoLab
               ? $"List<{arg.DATA_TYPE}>"
               : Utils.GetNetDataType(arg.DATA_TYPE);
 
-            pocoCode.AppendLine($"{indent}public {dataType} {arg.PARAMETER_NAME.Substring(1)} {{ get; set; }}");
+            string nullable = (dataType != "string") ? "?" : "";
+            pocoCode.AppendLine($"{indent}public {dataType}{nullable} {arg.PARAMETER_NAME.Substring(1)} {{ get; set; }}");
           });
           pocoCode.AppendLine("}"); // end of: Reslt Column 
         }
